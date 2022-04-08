@@ -1,6 +1,7 @@
 from django.urls import path
 
 import webhook_listener.views as views
+
 urlpatterns = [
     path('', views.index, name="index"),
     path('webhooks/', views.webhooks, name="webhooks"),

@@ -11,7 +11,8 @@ from django.utils.module_loading import import_string
 
 
 class ArcGISWebhookMessage(models.Model):
-
+    
+    id = models.AutoField(primary_key=True)
     received_at = models.DateTimeField(help_text="When this event was received.")
     payload = models.JSONField(default=None, null=True)
     event_name = models.TextField(verbose_name="Event Name")
@@ -27,9 +28,10 @@ class ArcGISWebhookMessage(models.Model):
         verbose_name_plural = "ArcGIS Webhooks"
 
 
-class JobKind(models.Model):
+class TaskKind(models.Model):
     id = models.AutoField(primary_key=True)
     dotted_path = models.TextField(null=False, blank=False, unique=True)
+    description = models.TextField(null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False)
     last_modified = models.DateTimeField(auto_now_add=True, null=False, blank=False)
 
@@ -40,23 +42,24 @@ class JobKind(models.Model):
     def from_func(func):
         if isinstance(func, types.FunctionType):
             dotted_path = f"{func.__module__}.{func.__name__}"
-            ret, _ = JobKind.objects.get_or_create(dotted_path=dotted_path)
+            description = f"{func.__doc__}"
+            ret, _ = TaskKind.objects.get_or_create(dotted_path=dotted_path, description=description)
             return ret
         else:
             raise TypeError
 
-    def run(self, job):
+    def run(self, Task):
         try:
             func = import_string(self.dotted_path)
-            return func(job)
+            return func(Task)
         except ImportError:
-            logging.error(f"Could not resolve job dotted_path: {self.dotted_path}")
+            logging.error(f"Could not resolve Task dotted_path: {self.dotted_path}")
             raise ImportError
         
 
-class Job(models.Model):
+class Task(models.Model):
     id = models.AutoField(primary_key=True)
-    kind = models.ForeignKey(JobKind, null=True, on_delete=models.SET_NULL)
+    kind = models.ForeignKey(TaskKind, null=True, on_delete=models.SET_NULL)
     created = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True, null=False, blank=False)
     periodic = models.BooleanField(default=False, null=False, blank=False)
@@ -64,6 +67,7 @@ class Job(models.Model):
     last_run = models.DateTimeField(default=None, null=True, blank=True)
     logs = models.TextField(null=True, blank=True)
     data = models.JSONField(null=True, blank=True)
+    source = models.ForeignKey(ArcGISWebhookMessage, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return f"{self.kind} {self.data}"

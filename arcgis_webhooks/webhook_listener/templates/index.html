@@ -28,9 +28,9 @@
                 <div class="col-6">
                     <div class="card shadow-lg">
                         <h4 class="card-title mb-0">
-                            Number of registered tasks
+                            Tasks Processed
                         </h4>
-                        <p class="text-muted smallest mt-0">Last processed at: n/a</p>
+                        <p class="text-muted smallest mt-0">Last processed at: {{ last_task_update | date:"SHORT_DATETIME_FORMAT" }}</p>
                         <p class="text-center largest-dashboard-numbers">{{ task_count }}</p>
                         <div class="text-right"> <!-- text-right = text-align: right -->
                             <a href="{% url 'tasks' %}" class="btn btn-action">Go to Tasks</a>

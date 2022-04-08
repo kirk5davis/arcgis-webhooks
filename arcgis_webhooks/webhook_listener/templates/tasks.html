@@ -12,7 +12,22 @@
               id="refresh-icon" class="fa fa-refresh"></i></button>
         </div>
         <div class="content">
-            Not available yet
+          <table class="table">
+            <thead>
+              <th>ID</th>
+              <th>Task type</th>
+              <th>Last run</th>
+            </thead>
+            <tbody>
+          {% for task in task_objs %}
+              <tr>
+                <td>{{task.id}}</td>
+                <td>{{task.kind}}</td>
+                <td>{{task.last_run | date:"SHORT_DATETIME_FORMAT"}}</td>
+              </tr>
+          {% endfor %}
+        </tbody>
+          </table>
         </div>
       </div>
       <div class="col-lg-3 d-none d-lg-block">

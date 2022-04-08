@@ -14,11 +14,11 @@ from django.shortcuts import render, get_object_or_404
 
 
 
-from webhook_listener.models import ArcGISWebhookMessage
+from webhook_listener.models import ArcGISWebhookMessage, Task, TaskKind
 
 from .utils import send_html_mail
 
-from .libs.check_new_user_email import check_email
+from .libs.check_new_user_email_futures import check_email
 
 import logging
 
@@ -33,8 +33,9 @@ ARCGIS_PROCESS_DICT = {
 def index(request):
     webhook_count = ArcGISWebhookMessage.objects.count()
     last_webhook_update = ArcGISWebhookMessage.objects.latest('-received_at')
-    task_count = 0
-    context = {"webhook_count": webhook_count, "last_webhook_update": last_webhook_update.received_at, "task_count":task_count}
+    task_count = Task.objects.count()
+    last_task_update = Task.objects.latest('-last_run')
+    context = {"webhook_count": webhook_count, "last_webhook_update": last_webhook_update.received_at, "task_count":task_count, "last_task_update":last_task_update.last_run}
     return render(request, "index.html", context)
 
 
@@ -45,9 +46,10 @@ def webhooks(request):
 
 
 def tasks(request):
-    task_count = 0
-    context = {"task_count":task_count}
+    task_objs = Task.objects.all().order_by('-last_run')
+    context = {"task_objs":task_objs}
     return render(request, "tasks.html", context)
+
 
 def webhook_detail(request, webhook_id):
     webhook_obj = get_object_or_404(ArcGISWebhookMessage, pk=webhook_id)
@@ -84,11 +86,6 @@ def arcgis_webhook(request):
             content_type="text/plain",
         )
 
-    # delete messages older than 7 days
-    # ArcGISWebhookMessage.objects.filter(
-    #     received_at__lte=timezone.now() - dt.timedelta(days=7)
-    # ).delete()
-    # print(f"Test Request Body: {request.body}")
     try:
         payload = json.loads(request.body)
     except (AttributeError, TypeError) as err:
@@ -99,26 +96,28 @@ def arcgis_webhook(request):
             event_name = " ".join([i['operation'] for i in payload['events']])
     except:
         pass
-    ArcGISWebhookMessage.objects.create(
+    webhook_obj = ArcGISWebhookMessage.objects.create(
         received_at=timezone.now(),
         payload=payload,
         event_name = event_name,
     )
 
     # custome function to process the webhook payload
-    process_webhook(event_name, payload)
+    process_webhook(event_name, payload, webhook_obj)
 
     return HttpResponse("Message received.", content_type="text/plain")
 
 
 @atomic
-def process_webhook(event_name, payload):
+def process_webhook(event_name, payload, webhook_obj):
     # create business logic
     try:
         logger.debug("Begin processing webhook:")
         logger.debug(event_name)
         logger.debug(payload)
-        ARCGIS_PROCESS_DICT[event_name](payload)
+        func_lookup = ARCGIS_PROCESS_DICT[event_name]
+        kind = TaskKind.from_func(func_lookup)
+        _task_obj, _ = Task.objects.get_or_create(kind=kind, source=webhook_obj, periodic=False, data=payload)
         logger.debug("didn't throw exception")
     except KeyError:
         logger.debug(f"threw KeyError exception for event: {event_name}")

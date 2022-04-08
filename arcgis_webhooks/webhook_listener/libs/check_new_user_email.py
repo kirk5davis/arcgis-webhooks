@@ -1,23 +1,41 @@
-from ..utils import send_html_mail
 import time
 import logging
+import threading
+from django.core.mail import EmailMessage
 
 logger = logging.getLogger(__name__)
 
-# signin_example_payload = {'events': 
-#                             [{'id': 'kirk.davis@ocio.wa.gov', 'operation': 'signin', 'properties': {}, 'source': 'users', 'userId': 'e0d5b07c672c422baf83dd7a9f221bbc', 'username': 'kirk.davis@ocio.wa.gov', 'when': 1645134525842}], 
-#                             'info': {'portalURL': 'https://geoportal2.watech.wa.gov/portal/', 'webhookId': '4edcf3c9ab0246f5a041d1225d0619f3', 'webhookName': 'all_webhooks', 'when': 1645134525845}, 
-#                             'properties': {}}
 
+class BaseThread(threading.Thread):
+    def __init__(self, input_task):
+        self.input_task = input_task
+        threading.Thread.__init__(self)
 
-def check_email(input_payload):
-    # should check for users actual email, assumes the username is the email
-    email_address = next(i['username'] for i in input_payload['events'])
-    email_domain = email_address.split("@")[-1]
-    if ".wa.gov" in email_domain:
-        send_html_mail("[SIGNIN] GeoPortal 2.0 Notification", f"<h1>Successful Government domain sign-in to GeoPortal 2.0</h1><p>User: {email_address}</p><p>Processed {time.ctime()}</p>", ["kirk.davis@watech.wa.gov"], "kirk.davis@watech.wa.gov")
+    def run(self):
+        input_payload = self.input_task.data
+        email_address = next(i['username'] for i in input_payload['events'])
+        email_domain = email_address.split("@")[-1]
+        if ".wa.gov" in email_domain:
+            status = "SUCCESSFUL"
+        else:
+            status = "NOTICE"
+        email_subject = f"[GP2-Notification] Check new user process: {status}"
+        html_content = f"""
+                            <h2><b>{status}</b> Government domain sign-in to GeoPortal 2.0</h2> 
+                            <p>User: {email_address}</p><p>Processed {time.ctime()}</p>
+                        """
+        sender = "kirk.davis@watech.wa.gov"
+        recipient_list = ["kirk.davis@watech.wa.gov"]
+        msg = EmailMessage(email_subject, html_content, sender, recipient_list)
+        msg.content_subtype = 'html'
+        msg.send()
         return True
-    # notify of bad sign-in
-    send_html_mail("[BAD SIGNIN] GeoPortal 2.0 Notification", f"<h1>Successful Government domain sign-in to GeoPortal 2.0</h1><p>User: {email_address}</p><p>Processed: {time.ctime()}</p>", ["kirk.davis@watech.wa.gov"], "kirk.davis@watech.wa.gov")
-    return False
+
+
+
+
+def check_email(input_task):
+    """Checks if username is a State government email address"""
+    BaseThread(input_task).start()
+    
 

@@ -16,6 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+admin.site.site_header = "ArcGIS Webhooks Administration Portal"
+admin.site.site_title = "ArcGIS Webhooks Administration"
+admin.site.index_title = "Welcome to the WaTech Webhook Admin Page"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
