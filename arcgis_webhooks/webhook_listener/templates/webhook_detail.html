@@ -14,7 +14,7 @@
         </div>
         <div class="content">
             <p><strong>Webhook ID: </strong>{{ webhook_obj.id  }}</p>
-            <p><strong>Webhook Event Type: </strong>{{ webhook.event_name }}</p>
+            <p><strong>Webhook Event Type: </strong>{{ webhook_obj.event_name }}</p>
             <p><strong>Webhook Payload: </strong><pre class="ml-20 pl-20">{{ webhook_obj.payload | pprint  }}</pre></p>
         </div>
       </div>

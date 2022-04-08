@@ -10,7 +10,7 @@
               </h2>
                     <button class="btn btn-sm float-right d-inline-block" _="on click send doIt to #refresh-icon1" hx-get="{% url 'hx_webhooks' %}" hx-target="#reload-area" hx-swap="innerHtml" hx-indicator="#refresh-icon">Refresh <i
                       id="refresh-icon1" _="on doIt call toastAlert('fetching any newly processed webhooks') then add .fa-spin then wait 2s then remove .fa-spin" class="fa fa-refresh "></i></button>
-                      <!-- <button class="btn btn-sm float-right d-inline-block"><i class="fa fa-calendar"></i></button>  -->
+                    <button class="btn btn-sm float-right d-inline-block" hx-get="{% url 'hx_test_webhook_send' %}"  hx-swap="none" _="on click send doIt to #test-webhook-btn"><i id="test-webhook-btn" _="on doIt call toastAlert('sending test webhook to database')" class="fa fa-magic"></i></button>
             </div>
             <div id="reload-area" class="content">
                 {% for webhook in webhook_objs %}

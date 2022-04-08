@@ -52,7 +52,7 @@
 </head>
 
 <body class="with-custom-webkit-scrollbars with-custom-css-scrollbars {{ request.dark_mode_preference }}" data-dm-shortcut-enabled="true"
-  data-sidebar-shortcut-enabled="true">
+  data-sidebar-shortcut-enabled="true" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
   <!-- Modals go here -->
   <!-- Reference: https://www.gethalfmoon.com/docs/modal -->
 
@@ -158,7 +158,6 @@
   </script>
   {% block additional-script %}
   {% endblock additional-script %}
-
 </body>
 
 </html>
