@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+      <div class="container-fluid">
+        <div class="row row-eq-spacing-lg">
+          <div class="col-lg-9">
+            <div class="content clearfix">
+              <h2 class="content-title font-weight-bold float-left d-inline-block">
+                ArcGIS Webhook Listener
+              </h2>
+                    <button class="btn btn-sm float-right d-inline-block" _="on click send doIt to #refresh-icon1" hx-get="{% url 'hx_webhooks' %}" hx-target="#reload-area" hx-swap="innerHtml" hx-indicator="#refresh-icon">Refresh <i
+                      id="refresh-icon1" _="on doIt call toastAlert('fetching any newly processed webhooks') then add .fa-spin then wait 2s then remove .fa-spin" class="fa fa-refresh "></i></button>
+                      <!-- <button class="btn btn-sm float-right d-inline-block"><i class="fa fa-calendar"></i></button>  -->
+            </div>
+            <div id="reload-area" class="content">
+                {% for webhook in webhook_objs %}
+              <div id="card{{ webhook.id }}" class="card shadow-lg">
+                <h4 class="card-title">
+                  Webhook: {{ webhook.id }} <span class="badge badge-success badge-pill">{{ webhook.event_name }}</span>
+                </h4>
+                    <code class="small">
+                        {{ webhook.payload | pprint}}
+                    </code>
+                <p>{{ webhook.received_at | date:"SHORT_DATETIME_FORMAT"}}</p>
+                <a class="btn btn-primary btn-sm" href="{% url 'webhook_detail' webhook.id %}">More Details</a>
+              </div>
+              {% endfor %}
+              
+            </div>
+          </div>
+          <div class="col-lg-3 d-none d-lg-block">
+            <div id="reload-area-links" class="content">
+              <h2 class="content-title font-size-20">
+                On this page
+              </h2>
+              {% for webhook in webhook_objs %}
+              <a href="#card{{ webhook.id }}" class="on-page-link">Webhook: {{ webhook.id }}</a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock content %}
+
+{% block additional-script %}
+<script type="text/javascript">
+    elem = document.getElementById('webhooks-page-nav-link');
+    elem.classList.add('active');
+</script>
+{% endblock additional-script %}

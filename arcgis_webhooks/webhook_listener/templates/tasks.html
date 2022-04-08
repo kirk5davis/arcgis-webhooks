@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row row-eq-spacing-lg">
+      <div class="col-lg-9">
+        <div class="content clearfix">
+          <h2 class="content-title font-weight-bold float-left d-inline-block">
+            Task Processing
+          </h2>
+          <button class="btn btn-sm float-right d-inline-block" type="button" onclick="loading()">Refresh <i
+              id="refresh-icon" class="fa fa-refresh"></i></button>
+        </div>
+        <div class="content">
+            Not available yet
+        </div>
+      </div>
+      <div class="col-lg-3 d-none d-lg-block">
+        <div class="content">
+          <h2 class="content-title font-size-20">
+            On this page
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock content %}
+
+{% block additional-script %}
+<script type="text/javascript">
+    elem = document.getElementById('tasks-page-nav-link');
+    elem.classList.add('active');
+</script>
+{% endblock additional-script %}

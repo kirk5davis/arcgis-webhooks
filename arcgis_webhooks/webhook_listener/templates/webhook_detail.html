@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row row-eq-spacing-lg">
+      <div class="col-lg-9">
+        <div class="content clearfix mb-0">
+          <h2 class="content-title font-weight-bold float-left d-inline-block mb-0">
+            ArcGIS Webhook Listener
+          </h2>
+        </div>
+        <div class="content mt-0">
+            <a href="{% url 'webhooks' %}"><i class="fa fa-home"></i> Go back</a><span class="small align-middle"> / Details: Webhook-{{ webhook_obj.id }}</span>
+        </div>
+        <div class="content">
+            <p><strong>Webhook ID: </strong>{{ webhook_obj.id  }}</p>
+            <p><strong>Webhook Event Type: </strong>{{ webhook.event_name }}</p>
+            <p><strong>Webhook Payload: </strong><pre class="ml-20 pl-20">{{ webhook_obj.payload | pprint  }}</pre></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock content %}
+
+{% block additional-script %}
+<script type="text/javascript">
+    elem = document.getElementById('webhooks-page-nav-link');
+    elem.classList.add('active');
+</script>
+{% endblock additional-script %}

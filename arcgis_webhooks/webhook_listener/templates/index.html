@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+      <div class="container-fluid">
+        <div class="row row-eq-spacing-lg">
+          <div class="col-lg-12">
+            <div class="content clearfix mb-0">
+              <h2 class="content-title font-weight-bold float-left d-inline-block">
+                Dashboard
+              </h2>
+              <button class="btn btn-sm float-right d-inline-block" type="button" onclick="loading()">Refresh <i
+                  id="refresh-icon" class="fa fa-refresh"></i></button>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                  <div class="card shadow-lg">
+                    <h4 class="card-title mb-0">
+                        Webhooks Collected
+                    </h4>
+                    <p class="text-muted smallest mt-0">Last webhook received at: {{ last_webhook_update | date:"SHORT_DATETIME_FORMAT" }}</p>
+                    <p class="text-center largest-dashboard-numbers">{{ webhook_count }}</p>
+                    <div class="text-right"> <!-- text-right = text-align: right -->
+                        <a href="{% url 'webhooks' %}" class="btn btn-action">Go to Webhooks</a>
+                      </div>
+                  </div>
+                  
+                </div>
+                <div class="col-6">
+                    <div class="card shadow-lg">
+                        <h4 class="card-title mb-0">
+                            Number of registered tasks
+                        </h4>
+                        <p class="text-muted smallest mt-0">Last processed at: n/a</p>
+                        <p class="text-center largest-dashboard-numbers">{{ task_count }}</p>
+                        <div class="text-right"> <!-- text-right = text-align: right -->
+                            <a href="{% url 'tasks' %}" class="btn btn-action">Go to Tasks</a>
+                          </div>
+                      </div>
+                      
+                </div>
+              </div>
+              <!-- Second row -->
+              <div class="row">
+                <div class="col-6">
+                  <div class="card">
+                    ...
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="card">
+                    ...
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+{% endblock content %}
+
+{% block additional-script %}
+<script type="text/javascript">
+    elem = document.getElementById('index-page-nav-link');
+    elem.classList.add('active');
+</script>
+{% endblock additional-script %}

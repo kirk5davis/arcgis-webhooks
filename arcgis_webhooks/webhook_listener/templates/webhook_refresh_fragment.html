@@ -1,0 +1,21 @@
+{% for webhook in webhook_objs %}
+<div id="card{{ webhook.id }}" class="card shadow-lg">
+  <h4 class="card-title">
+    Webhook: {{ webhook.id }} <span class="badge badge-success badge-pill">{{ webhook.event_name }}</span>
+  </h4>
+      <code class="small">
+          {{ webhook.payload | pprint}}
+      </code>
+  <p>{{ webhook.received_at | date:"SHORT_DATETIME_FORMAT"}}</p>
+  <a class="btn btn-primary btn-sm" href="{% url 'webhook_detail' webhook.id %}">More Details</a>
+</div>
+{% endfor %}
+
+<div id="reload-area-links" class="content" hx-swap-oob="true">
+  <h2 class="content-title font-size-20">
+    On this page
+  </h2>
+  {% for webhook in webhook_objs %}
+  <a href="#card{{ webhook.id }}" class="on-page-link">Webhook: {{ webhook.id }}</a>
+  {% endfor %}
+</div>
