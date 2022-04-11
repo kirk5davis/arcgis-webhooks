@@ -12,20 +12,17 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
 
-
-
 from webhook_listener.models import ArcGISWebhookMessage, Task, TaskKind
 
-from .utils import send_html_mail
-
-from .libs.check_new_user_email_futures import check_email
+from .libs.check_new_user_email import check_email
 
 import logging
 
 logger = logging.getLogger(__name__)
 
+
 ARCGIS_PROCESS_DICT = {
-    'signin': check_email,
+    'addUsers': check_email,
 }
 
 
@@ -61,6 +58,7 @@ def hx_webhooks(request):
     webhook_objs = ArcGISWebhookMessage.objects.all().order_by('-received_at')
     context = {"webhook_objs": webhook_objs}
     return render(request, "webhook_refresh_fragment.html", context)
+
 
 @csrf_exempt
 def hx_test_webhook_send(request):
@@ -103,22 +101,17 @@ def arcgis_webhook(request):
     )
 
     # custome function to process the webhook payload
-    process_webhook(event_name, payload, webhook_obj)
+    process_webhook(webhook_obj)
 
     return HttpResponse("Message received.", content_type="text/plain")
 
 
 @atomic
-def process_webhook(event_name, payload, webhook_obj):
-    # create business logic
+def process_webhook(webhook_obj):
+    # assign webhook to a task
     try:
-        logger.debug("Begin processing webhook:")
-        logger.debug(event_name)
-        logger.debug(payload)
-        func_lookup = ARCGIS_PROCESS_DICT[event_name]
+        func_lookup = ARCGIS_PROCESS_DICT[webhook_obj.event_name]
         kind = TaskKind.from_func(func_lookup)
-        _task_obj, _ = Task.objects.get_or_create(kind=kind, source=webhook_obj, periodic=False, data=payload)
-        logger.debug("didn't throw exception")
+        _task_obj, _ = Task.objects.get_or_create(kind=kind, source=webhook_obj, periodic=False, data=webhook_obj.payload)
     except KeyError:
-        logger.debug(f"threw KeyError exception for event: {event_name}")
         pass
