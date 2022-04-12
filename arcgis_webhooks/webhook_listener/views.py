@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 ARCGIS_PROCESS_DICT = {
-    'addUsers': check_email,
+    'add_user_to_org': check_email,
 }
 
 
@@ -110,7 +110,8 @@ def arcgis_webhook(request):
 def process_webhook(webhook_obj):
     # assign webhook to a task
     try:
-        func_lookup = ARCGIS_PROCESS_DICT[webhook_obj.event_name]
+        webhook_name = webhook_obj.payload["info"]["webhookName"]
+        func_lookup = ARCGIS_PROCESS_DICT[webhook_name]
         kind = TaskKind.from_func(func_lookup)
         _task_obj, _ = Task.objects.get_or_create(kind=kind, source=webhook_obj, periodic=False, data=webhook_obj.payload)
     except KeyError:

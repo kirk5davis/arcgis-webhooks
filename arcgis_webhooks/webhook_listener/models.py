@@ -55,7 +55,7 @@ class TaskKind(models.Model):
         except ImportError:
             logging.error(f"Could not resolve Task dotted_path: {self.dotted_path}")
             raise ImportError
-        
+
 
 class Task(models.Model):
     id = models.AutoField(primary_key=True)

@@ -16,17 +16,6 @@ class TaskAdmin(admin.ModelAdmin):
             return None
         return not obj.failed
     
-    readonly_fields = (
-        "json_pprint",
-    )
-
-    @admin.display(description="JSON pretty print")
-    def json_pprint(self, instance):
-        import json
-        return admin.mark_safe(
-            f"""<pre>{json.dumps(instance.data, sort_keys=True, indent=4)}</pre>"""
-        )
-
     success.boolean = True
     ordering = ["-created", "-last_run"]
     actions = [run_tasks]

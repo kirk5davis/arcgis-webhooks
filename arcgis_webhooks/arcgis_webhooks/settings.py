@@ -132,6 +132,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 EMAIL_HOST = "apps.warelay.wa.gov"
 
+DEFAULT_NOTIFICATION_SENDER = "kirk.davis@watech.wa.gov"
+
+DEFAULT_NOTIFICATION_RECIPIENTS = ["kirk.davis@watech.wa.gov"]
+
 LOGGING = {
     'version': 1,
     # The version number of our log
