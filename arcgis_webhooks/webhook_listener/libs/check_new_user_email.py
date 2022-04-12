@@ -27,13 +27,13 @@ def _email_check(input_payload):
     gis = GIS(ARCGIS_ENTERPRISE_URL, ARCGIS_ENTERPRISE_ADMIN, ARCGIS_ENTERPRISE_ADMIN_PW)
     new_userid = next(i for i in input_payload['events'])['id']
     new_user_email = gis.users.get(username=new_userid).email
-    email_domain = new_user_email.split("@")[-1]
+    email_domain = new_user_email.split("@")[-1].lower()
     if any(sub_string in email_domain for sub_string in ACCEPTED_GOVERNMENT_USER_DOMAIN_SUBSTRINGS):
         # government email exists, check for agency group and update user
         status = "SUCCESSFUL"
         html_content = f"""
                         <h2><b>{status}</b> new user added to GeoPortal 2.0</h2> 
-                        <p>User: {new_userid} - {new_user_email}</p><p>Processed: {time.ctime()}</p>
+                        <p>Username: {new_userid} - Email: {new_user_email}</p><p>Processed: {time.ctime()}</p>
                     """
         agency_group = _check_for_agency_group_access(gis, email_domain)
         if agency_group:
@@ -54,18 +54,21 @@ def _email_check(input_payload):
 
         # adjust the user's settings  
         new_user = gis.users.get(new_userid)
-        new_user.update_role(quarantined_role_id)
         quarantined_group.add_users(usernames=[new_userid])
         training_resources_group.remove_users(usernames=[new_userid])
+        new_user.update_role(quarantined_role_id)
 
         status = "QUARANTINED"
         html_content = f"""
                         <h2><b>{status}</b> new user added to GeoPortal 2.0</h2> 
-                        <p>User: {new_userid} - {new_user_email}</p><p>Processed: {time.ctime()}</p>
+                        <p>Due to administrative policies of GeoPortal 2.0, your new account appears to be linked to a non-governmental email address and has been quarantined. 
+                        Your account request will be reviewed by GeoPortal 2.0 administrators.</p>
+                        <p>User: {new_userid} - Email: {new_user_email}</p><p>Processed: {time.ctime()}</p>
                     """
         
     email_subject = f"[GP2-Notification] Check new user process: {status}"
-    msg = EmailMessage(email_subject, html_content, DEFAULT_NOTIFICATION_SENDER, DEFAULT_NOTIFICATION_RECIPIENTS)
+    recipient_list = [new_user_email]
+    msg = EmailMessage(email_subject, html_content, DEFAULT_NOTIFICATION_SENDER, recipient_list, cc=DEFAULT_NOTIFICATION_RECIPIENTS)
     msg.content_subtype = 'html'
     msg.send()
     return f"{time.ctime()} -- Completed email check of new users: {new_userid} - {new_user_email} - Status: {status}\n"
