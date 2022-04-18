@@ -22,5 +22,5 @@ admin.site.index_title = "Welcome to the WaTech Webhook Admin Page"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-     path('', include('webhook_listener.urls')),
+    path('', include('webhook_listener.urls')),
 ]
