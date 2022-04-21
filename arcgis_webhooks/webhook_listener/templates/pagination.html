@@ -1,0 +1,13 @@
+<div class="on-page-link">
+    <span class="badge">
+      {% if webhook_objs.has_previous %}
+        <a class="m-5" href="?page={{ webhook_objs.previous_page_number }}"><i class="fa fa-chevron-circle-left" aria-hidden="true"></i></a>
+      {% endif %}
+      <span>
+        Page {{ webhook_objs.number }} of {{ webhook_objs.paginator.num_pages }}
+      </span>
+      {% if webhook_objs.has_next %}
+        <a class="m-5" href="?page={{ webhook_objs.next_page_number }}"><i class="fa fa-chevron-circle-right" aria-hidden="true"></i></a>
+      {% endif %}
+    </span>
+  </div>

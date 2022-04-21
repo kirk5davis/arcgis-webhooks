@@ -36,6 +36,7 @@
               {% for webhook in webhook_objs %}
               <a href="#card{{ webhook.id }}" class="on-page-link">Webhook: {{ webhook.id }}</a>
               {% endfor %}
+              {% include "pagination.html" %}
             </div>
           </div>
         </div>

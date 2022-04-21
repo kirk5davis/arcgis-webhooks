@@ -15,15 +15,15 @@
           <table class="table">
             <thead>
               <th>ID</th>
-              <th>Task type</th>
+              <th>Task Nname</th>
               <th>Last run</th>
             </thead>
             <tbody>
           {% for task in task_objs %}
               <tr>
                 <td>{{task.id}}</td>
-                <td>{{task.kind}}</td>
-                <td>{{task.last_run | date:"SHORT_DATETIME_FORMAT"}}</td>
+                <td>{{task.task_name}}</td>
+                <td>{{task.date_done | date:"SHORT_DATETIME_FORMAT"}}</td>
               </tr>
           {% endfor %}
         </tbody>

@@ -4,6 +4,7 @@ import json
 from secrets import compare_digest
 
 from django.conf import settings
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.transaction import atomic, non_atomic_requests
 from django.http import HttpRequest, HttpResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
@@ -12,6 +13,7 @@ from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
 
 from webhook_listener.models import ArcGISWebhookMessage
+from django_celery_results.models import TaskResult
 
 from .tasks import new_user_email_check
 from .tasks import send_test_webhook_email
@@ -31,22 +33,31 @@ ARCGIS_PROCESS_DICT = {
 def index(request):
     webhook_count = ArcGISWebhookMessage.objects.count()
     last_webhook_update = ArcGISWebhookMessage.objects.latest('-received_at')
-    task_count = 0
-    last_task_update = "n/a"
-    context = {"webhook_count": webhook_count, "last_webhook_update": last_webhook_update.received_at, "task_count":task_count, "last_task_update":last_task_update}
+    task_count = TaskResult.objects.count()
+    last_task_update = TaskResult.objects.latest('-date_done')
+    context = {"webhook_count": webhook_count, "last_webhook_update": last_webhook_update.received_at, "task_count":task_count, "last_task_update":last_task_update.date_done}
     return render(request, "index.html", context)
 
 
 def webhooks(request):
     webhook_objs = ArcGISWebhookMessage.objects.all().order_by('-received_at')
-    context = {"webhook_objs": webhook_objs}
+    page_num = request.GET.get('page', 1)
+    paginator = Paginator(webhook_objs, 10)
+
+    try:
+        page_obj = paginator.page(page_num)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    context = {"webhook_objs": page_obj}
     return render(request, "webhooks.html", context)
 
 
 def tasks(request):
-    # task_objs = Task.objects.all().order_by('-last_run')
-    # context = {"task_objs":task_objs}
-    context = {"task_objs":[]}
+    task_objs = TaskResult.objects.all().order_by('-date_done')
+    context = {"task_objs":task_objs}
     return render(request, "tasks.html", context)
 
 
