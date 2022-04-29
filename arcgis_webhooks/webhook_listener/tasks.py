@@ -2,7 +2,25 @@ import time
 from celery import shared_task
 from django.core.mail import EmailMessage
 from django.conf import settings
+from django.template.loader import render_to_string
 from arcgis.gis import GIS
+
+
+def send_notification(subject, task_name, task_return_status, task_results_detail, task_additional_info):
+    
+    context = {
+        'task_name': task_name,
+        'task_return_status': task_return_status,
+        'task_results_detail': task_results_detail,
+        'task_additional_info': task_additional_info,
+    }
+
+    email_subject = subject
+    email_body = render_to_string('email_notification.html', context)
+    
+    # TODO - continue formating notifications
+
+    pass
 
 
 def _check_for_agency_group_access(gis_obj, input_email_domain):

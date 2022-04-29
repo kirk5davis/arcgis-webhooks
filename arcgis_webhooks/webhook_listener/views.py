@@ -17,14 +17,16 @@ from django_celery_results.models import TaskResult
 
 from .tasks import new_user_email_check
 from .tasks import send_test_webhook_email
+from .tasks import share_item_with_org_check
 
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-ARCGIS_PROCESS_DICT = {
+WEBHOOK_PROCESS_DICT = {
     'add_user_to_org': new_user_email_check,
+    'add_item_to_org': share_item_with_org_check,
     'test_webhook': send_test_webhook_email,
 }
 
@@ -42,7 +44,7 @@ def index(request):
 def webhooks(request):
     webhook_objs = ArcGISWebhookMessage.objects.all().order_by('-received_at')
     page_num = request.GET.get('page', 1)
-    paginator = Paginator(webhook_objs, 10)
+    paginator = Paginator(webhook_objs, 20)
 
     try:
         page_obj = paginator.page(page_num)
@@ -124,6 +126,6 @@ def process_webhook(webhook_obj):
     # assign webhook to a task
     try:
         webhook_name = webhook_obj.payload["info"]["webhookName"]
-        ARCGIS_PROCESS_DICT[webhook_name].delay(webhook_obj.payload)
+        WEBHOOK_PROCESS_DICT[webhook_name].delay(webhook_obj.payload)
     except KeyError:
         pass
