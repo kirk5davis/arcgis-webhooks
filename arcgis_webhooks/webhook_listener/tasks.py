@@ -38,8 +38,12 @@ def _check_for_agency_group_access(gis_obj, input_email_domain):
     return None
 
 
-def _check_for_org_share_tag(item_obj, gis_obj):
-    pass
+def _check_for_org_share_tag(item_obj):
+    if item_obj:
+        if settings.ORG_SHARE_ADMIN_TAG in item_obj.tags:
+            return True
+        return False
+    return False
 
 
 @shared_task
@@ -107,10 +111,13 @@ def share_item_with_org_check(input_payload):
     gis = GIS(settings.ARCGIS_ENTERPRISE_URL, settings.ARCGIS_ENTERPRISE_ADMIN, settings.ARCGIS_ENTERPRISE_ADMIN_PW)
     item_id_guid = next(i for i in input_payload['events'])['id']
     item_obj = gis.content.get(item_id_guid)
-    if _check_for_org_share_tag(item_obj, gis):
+    if _check_for_org_share_tag(item_obj):
         try:
-            item_obj.share(org=True)
-            success_message = "Tag-based organizational share successful."
+            if not item_obj.shared_with['org']:
+                item_obj.share(org=True)
+                success_message = "Tag-based organizational share successful."
+            else:
+                success_message = "Item already shared with the organization."
             return (True, f"{success_message}, Item 'shared-with' info: {item_obj.shared_with}")
         except Exception as e:
             fail_message = f"Tag-based organizational share requested and failed, Exception thrown: {e}"
