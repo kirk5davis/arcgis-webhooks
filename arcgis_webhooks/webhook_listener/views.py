@@ -75,6 +75,11 @@ def hx_webhooks(request):
     return render(request, "webhook_refresh_fragment.html", context)
 
 
+def hx_tasks(request):
+    task_objs = TaskResult.objects.all().order_by('-date_done')
+    context = {"task_objs": task_objs}
+    return render(request, "task_refresh_fragment.html", context)
+
 @csrf_exempt
 def hx_test_webhook_send(request):
     test_webhook_data = """{"events": [{"id": "kirk.davis@ocio.wa.gov", "operation": "signin-test", "properties": {}, "source": "users", "userId":"e0d5b07c672c422baf83dd7a9f221bbc", "username": "kirk.davis@ocio.wa.gov", "when":

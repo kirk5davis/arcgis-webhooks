@@ -8,14 +8,15 @@
           <h2 class="content-title font-weight-bold float-left d-inline-block">
             Task Processing
           </h2>
-          <button class="btn btn-sm float-right d-inline-block" type="button" onclick="loading()">Refresh <i
-              id="refresh-icon" class="fa fa-refresh"></i></button>
+          <button class="btn btn-sm float-right d-inline-block" _="on click send doIt to #refresh-icon1" hx-get="{% url 'hx_tasks' %}" hx-target="#reload-area" hx-swap="innerHtml" hx-indicator="#refresh-icon">Refresh <i
+            id="refresh-icon1" _="on doIt call toastAlert('fetching any newly processed tasks') then add .fa-spin then wait 2s then remove .fa-spin" class="fa fa-refresh "></i></button>
+          <button class="btn btn-sm float-right d-inline-block" hx-get="{% url 'hx_test_webhook_send' %}"  hx-swap="none" _="on click send doIt to #test-task-btn"><i id="test-task-btn" _="on doIt call toastAlert('sending test task/webhook for processing')" class="fa fa-magic"></i></button>
         </div>
-        <div class="content">
+        <div id="reload-area" class="content">
           <table class="table">
             <thead>
               <th>ID</th>
-              <th>Task Nname</th>
+              <th>Task Name</th>
               <th>Last run</th>
             </thead>
             <tbody>
