@@ -1,16 +1,18 @@
 <table class="table">
-    <thead>
-      <th>ID</th>
-      <th>Task Name</th>
-      <th>Last run</th>
-    </thead>
-    <tbody>
-  {% for task in task_objs %}
-      <tr>
-        <td>{{task.id}}</td>
-        <td>{{task.task_name}}</td>
-        <td>{{task.date_done | date:"SHORT_DATETIME_FORMAT"}}</td>
-      </tr>
-  {% endfor %}
+  <thead>
+    <th>ID</th>
+    <th>Task Name</th>
+    <th>Last run</th>
+    <th>Result message</th>
+  </thead>
+  <tbody>
+{% for task in task_objs %}
+    <tr>
+      <td>{{task.id}}</td>
+      <td>{{task.task_name}}</td>
+      <td>{{task.date_done | date:"SHORT_DATETIME_FORMAT"}}</td>
+      <td>{{task.result }}</td>
+    </tr>
+{% endfor %}
 </tbody>
-  </table>
+</table>
